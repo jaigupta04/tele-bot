@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const admin = require('firebase-admin');
 
 // Initialize Firebase
-const serviceAccount = require('../../serviceAccountKey.json');
+const serviceAccount = require('../serviceAccountKey.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -11,6 +11,7 @@ const db = admin.firestore();
 
 // Initialize the bot (without polling)
 const bot = new TelegramBot(process.env.BOT_TOKEN);
+// const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 // Webhook API Route (Vercel Serverless Function)
 module.exports = async (req, res) => {
