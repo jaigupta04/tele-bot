@@ -10,8 +10,8 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // Initialize the bot (without polling)
-const bot = new TelegramBot(process.env.BOT_TOKEN);
-// const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+// const bot = new TelegramBot(process.env.BOT_TOKEN);
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 // Webhook API Route (Vercel Serverless Function)
 module.exports = async (req, res) => {

@@ -1,0 +1,27 @@
+name: Send Scheduled Telegram Messages
+
+on:
+  schedule:
+    - cron: "* * * * *" # Runs every minute
+  workflow_dispatch: # Allows manual execution
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run scheduler script
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: node scheduler.js
