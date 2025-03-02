@@ -23,5 +23,4 @@ jobs:
       - name: Run scheduler script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         run: node scheduler.js
