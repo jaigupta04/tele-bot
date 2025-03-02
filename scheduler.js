@@ -13,6 +13,29 @@ const db = admin.firestore();
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
+
+
+const botToken = process.env.BOT_TOKEN;
+if (!botToken) {
+  console.error("BOT_TOKEN is not defined!");
+  process.exit(1);
+}
+
+const firebaseAdmin = require("firebase-admin");
+
+try {
+  const firebaseCredentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+  firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(firebaseCredentials),
+  });
+} catch (error) {
+  console.error("Error parsing FIREBASE_CREDENTIALS:", error);
+  process.exit(1);
+}
+
+
+
+
 (async () => {
   const now = moment().toISOString();
   const snapshot = await db.collection('scheduledMessages').where('scheduledTime', '<=', now).get();
