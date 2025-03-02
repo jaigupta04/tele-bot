@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 const moment = require('moment');
 
 // Initialize Firebase
-const serviceAccount = require("./serviceAccount.json"); // Directly import the file
+const serviceAccount = require("./serviceAccountKey.json"); // Directly import the file
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
