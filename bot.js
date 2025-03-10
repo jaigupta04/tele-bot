@@ -32,10 +32,11 @@ bot.command("schedule", async (ctx) => {
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
   const args = ctx.message.text.split(" ").slice(1);
+
   if (args.length < 2) {
     return ctx.reply("❌ Usage: /schedule HH:mm Your Message");
   }
-  
+
   const [time, ...messageArray] = args;
   const message = messageArray.join(" ");
 
@@ -55,9 +56,14 @@ bot.command("schedule", async (ctx) => {
 });
 
 // Webhook route
-app.post(`/${process.env.BOT_TOKEN}`, (req, res) => {
-  bot.handleUpdate(req.body);
-  res.sendStatus(200);
+app.post("/", (req, res) => {
+  try {
+    bot.handleUpdate(req.body);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Webhook error:", error);
+    res.sendStatus(500);
+  }
 });
 
 // Start server
@@ -66,10 +72,13 @@ app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
 
   // Set webhook
-  const webhookURL = `${process.env.VERCEL_URL}/${process.env.BOT_TOKEN}`;
+  const webhookURL = `https://tele-bot-rosy.vercel.app/`;
   await bot.telegram.setWebhook(webhookURL);
   console.log(`Webhook set: ${webhookURL}`);
 });
+
+export default app;
+
 
 
 
