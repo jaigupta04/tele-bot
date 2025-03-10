@@ -29,6 +29,8 @@ bot.command("hello", (ctx) => {
 
 // Handle /schedule command
 bot.command("schedule", async (ctx) => {
+  console.log("Received /schedule command");
+  ctx.reply("✅ Bot is active!");
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
   const args = ctx.message.text.split(" ").slice(1);
