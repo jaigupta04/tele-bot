@@ -32,11 +32,10 @@ bot.command("schedule", async (ctx) => {
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
   const args = ctx.message.text.split(" ").slice(1);
-
   if (args.length < 2) {
     return ctx.reply("❌ Usage: /schedule HH:mm Your Message");
   }
-
+  
   const [time, ...messageArray] = args;
   const message = messageArray.join(" ");
 
@@ -57,6 +56,7 @@ bot.command("schedule", async (ctx) => {
 
 // Webhook route
 app.post("/", (req, res) => {
+  console.log("Incoming request:", req.body);  // Log incoming requests
   try {
     bot.handleUpdate(req.body);
     res.sendStatus(200);
@@ -65,6 +65,13 @@ app.post("/", (req, res) => {
     res.sendStatus(500);
   }
 });
+
+// 🔥 Prevent Vercel from sleeping
+setInterval(() => {
+  fetch("https://tele-bot-rosy.vercel.app/")
+    .then(() => console.log("Keeping Vercel awake"))
+    .catch(() => console.log("Vercel wake-up failed"));
+}, 5 * 60 * 1000); // Every 5 minutes
 
 // Start server
 const PORT = process.env.PORT || 3000;
