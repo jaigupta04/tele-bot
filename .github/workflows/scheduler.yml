@@ -23,6 +23,7 @@ jobs:
       - name: Run scheduler script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node scheduler.js
 
       - name: Keep Vercel Awake
