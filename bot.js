@@ -46,8 +46,8 @@ bot.command("schedule", async (ctx) => {
   }
 
   const scheduledTime = moment(time, "HH:mm").toISOString();
-  ctx.reply("✅ Bot is active!");
-  await db.collection("scheduledMessages").add({
+
+  const docRef = await db.collection("scheduledMessages").add({
     userId,
     chatId,
     message,
