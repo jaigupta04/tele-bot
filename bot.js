@@ -29,9 +29,6 @@ bot.command("hello", (ctx) => {
 
 // Handle /schedule command
 bot.command("schedule", async (ctx) => {
-  console.log("Firebase Config:", process.env.FIREBASE_SERVICE_ACCOUNT);
-
-  ctx.reply("✅ Bot is active!");
 
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
@@ -49,12 +46,14 @@ bot.command("schedule", async (ctx) => {
   }
 
   const scheduledTime = moment(time, "HH:mm").toISOString();
+  ctx.reply("✅ Bot is active!");
   await db.collection("scheduledMessages").add({
     userId,
     chatId,
     message,
     scheduledTime,
   });
+  console.log("Firestore write successful:", docRef.id); 
 
   ctx.reply(`✅ Scheduled: "${message}" at ${time}`);
 });
