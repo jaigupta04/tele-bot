@@ -70,13 +70,6 @@ app.post("/", (req, res) => {
   }
 });
 
-// 🔥 Prevent Vercel from sleeping
-setInterval(() => {
-  fetch("https://tele-bot-rosy.vercel.app/")
-    .then(() => console.log("Keeping Vercel awake"))
-    .catch(() => console.log("Vercel wake-up failed"));
-}, 5 * 60 * 1000); // Every 5 minutes
-
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
