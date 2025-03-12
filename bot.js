@@ -60,7 +60,7 @@ bot.command("schedule", async (ctx) => {
 
 // Webhook route
 app.post("/", (req, res) => {
-  console.log("Incoming request:", req.body);  // Log incoming requests
+  console.log("Incoming request:", req.body); 
   try {
     bot.handleUpdate(req.body);
     res.sendStatus(200);
