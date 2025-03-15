@@ -25,10 +25,16 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 // Handle /Hello command
 bot.command("hello", (ctx) => {
   ctx.reply("✅ Bot is active!");
+  
+  for (let i = 0; i < 5; i++) {
+    fetch("https://tele-bot-rosy.vercel.app/")
+      .then(() => console.log(`Ping ${i + 1}: Keeping Vercel awake`))
+      .catch(() => console.log(`Ping ${i + 1}: Vercel wake-up failed`));
+  }
 });
 
 // Handle /schedule command
-bot.command("schedule", async (ctx) => {
+bot.command("remind", async (ctx) => {
 
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
