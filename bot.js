@@ -53,7 +53,7 @@ bot.command("remind", async (ctx) => {
     message,
     scheduledTime,
   });
-  console.log("Firestore write successful:", docRef.id); 
+  
 
   ctx.reply(`✅ Scheduled: "${message}" at ${time}`);
 });
@@ -73,11 +73,12 @@ bot.command("birthday", async (ctx) => {
     return ctx.reply("❌ Invalid date format! Use DD/MM.");
   }
 
-  await db.collection("birthdays").add({
+  const docRef = await db.collection("birthdays").add({
     chatId,
     name,
     date,
   });
+  console.log("Firestore write successful:", docRef.id); 
 
   ctx.reply(`✅ Birthday for ${name} added on ${date} 🎉`);
 });
