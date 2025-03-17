@@ -58,6 +58,36 @@ bot.command("remind", async (ctx) => {
   ctx.reply(`✅ Scheduled: "${message}" at ${time}`);
 });
 
+bot.command("birthday", async (ctx) => {
+  const chatId = ctx.chat.id;
+  const args = ctx.message.text.split(" ").slice(1);
+
+  if (args.length < 2) {
+    return ctx.reply("❌ Usage: /birthday DD/MM Name");
+  }
+
+  const [date, ...nameArray] = args;
+  const name = nameArray.join(" ");
+
+  if (!moment(date, "DD/MM", true).isValid()) {
+    return ctx.reply("❌ Invalid date format! Use DD/MM.");
+  }
+
+  await db.collection("birthdays").add({
+    chatId,
+    name,
+    date,
+  });
+
+  ctx.reply(`✅ Birthday for ${name} added on ${date} 🎉`);
+});
+
+// Webhook route
+app.post(`/${process.env.BOT_TOKEN}`, (req, res) => {
+  bot.handleUpdate(req.body);
+  res.sendStatus(200);
+});
+
 // Webhook route
 app.post("/", (req, res) => {
   console.log("Incoming request:", req.body); 
