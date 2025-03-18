@@ -29,34 +29,58 @@ bot.command("hello", (ctx) => {
 
 // Handle /schedule command
 bot.command("remind", async (ctx) => {
-
   const chatId = ctx.chat.id;
   const userId = ctx.from.id;
   const args = ctx.message.text.split(" ").slice(1);
 
   if (args.length < 2) {
-    return ctx.reply("❌ Usage: /schedule HH:mm Your Message");
-  }
-  
-  const [time, ...messageArray] = args;
-  const message = messageArray.join(" ");
-
-  if (!moment(time, "HH:mm", true).isValid()) {
-    return ctx.reply("❌ Invalid time format! Use HH:mm (24-hour format).");
+    return ctx.reply("❌ Usage: /remind [DD[/MM[/YYYY]]] HH:mm Reminder text");
   }
 
-  const scheduledTime = moment(time, "HH:mm").toISOString();
+  // Extract time
+  const timeIndex = args.findIndex((arg) => arg.match(/^\d{1,2}:\d{2}$/));
+  if (timeIndex === -1) {
+    return ctx.reply("❌ Please specify time in HH:mm format.");
+  }
 
+  const time = args[timeIndex];
+  const message = args.slice(timeIndex + 1).join(" ");
+
+  // Extract date
+  const dateParts = args.slice(0, timeIndex).join("").split("/");
+  const now = moment();
+  let day = now.date();
+  let month = now.month() + 1; // Moment months are 0-indexed
+  let year = now.year();
+
+  if (dateParts.length === 1 && dateParts[0]) {
+    day = parseInt(dateParts[0]);
+  } else if (dateParts.length === 2) {
+    day = parseInt(dateParts[0]);
+    month = parseInt(dateParts[1]);
+  } else if (dateParts.length === 3) {
+    day = parseInt(dateParts[0]);
+    month = parseInt(dateParts[1]);
+    year = parseInt(dateParts[2]);
+  }
+
+  // Validate date and time
+  const scheduledTime = moment(`${day}/${month}/${year} ${time}`, "D/M/YYYY HH:mm", true);
+  if (!scheduledTime.isValid()) {
+    return ctx.reply("❌ Invalid date or time format.");
+  }
+
+  // Save reminder to Firestore
   const docRef = await db.collection("scheduledMessages").add({
     userId,
     chatId,
     message,
-    scheduledTime,
+    scheduledTime: scheduledTime.toISOString(),
   });
-  
 
-  ctx.reply(`✅ Scheduled: "${message}" at ${time}`);
+  ctx.reply(`✅ Reminder set for ${scheduledTime.format("D MMM YYYY, HH:mm")} - "${message}"`);
 });
+
 
 bot.command("birthday", async (ctx) => {
   const chatId = ctx.chat.id;
