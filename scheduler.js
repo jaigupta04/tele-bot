@@ -3,19 +3,20 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const moment = require("moment");
 
-// Initialize Firebase
 const serviceAccount = JSON.parse(
   Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, "base64").toString("utf-8")
 );
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
 const db = admin.firestore();
+
 const TELEGRAM_BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
-// Function to send a Telegram message
+
 const sendMessage = async (chatId, text) => {
   try {
     await axios.post(TELEGRAM_API, { chat_id: chatId, text });
@@ -47,17 +48,13 @@ const sendMessage = async (chatId, text) => {
 // 🔥 2️⃣ Process Birthday Reminders
 (async () => {
   const now = moment();
-  const today = now.format("DD/MM"); // Get today's date in DD/MM format
-  const currentTime = now.format("HH:mm");
-
-  // 🎂 Check for upcoming birthdays (today & a day before at 6 PM)
+  const today = now.format("DD/MM"); 
   const birthdaySnapshot = await db.collection("birthdays").get();
   
   birthdaySnapshot.forEach(async (doc) => {
     const { chatId, name, date, lastSent } = doc.data();
 
     if (date === today) {
-      // ✅ Check if the birthday message was already sent today
       if (lastSent === now.format("YYYY-MM-DD")) return;
 
       await axios.post(TELEGRAM_API, { chat_id: chatId, text: `🎉 Today is ${name}'s birthday! 🎂` });
@@ -65,7 +62,7 @@ const sendMessage = async (chatId, text) => {
       console.log(`Sent birthday reminder for ${name}`);
     }
 
-    if (now.format("HH:mm") === "18:00") { // 6 PM check
+    if (now.format("HH:mm") === "18:00") {
       const tomorrow = now.clone().add(1, "day").format("DD/MM");
       if (date === tomorrow && lastSent !== now.format("YYYY-MM-DD") + " pre") {
         await axios.post(TELEGRAM_API, { chat_id: chatId, text: `⚠️ Reminder: Tomorrow is ${name}'s birthday! 🎂` });
