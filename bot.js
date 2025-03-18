@@ -69,7 +69,7 @@ bot.command("birthday", async (ctx) => {
   const [date, ...nameArray] = args;
   const name = nameArray.join(" ");
 
-  if (!moment(date, "DD/MM", true).isValid()) {
+  if (!/^\d{2}\/\d{2}$/.test(date)) {
     return ctx.reply("❌ Invalid date format! Use DD/MM.");
   }
 
@@ -78,10 +78,10 @@ bot.command("birthday", async (ctx) => {
     name,
     date,
   });
-  console.log("Firestore write successful:", docRef.id); 
 
   ctx.reply(`✅ Birthday for ${name} added on ${date} 🎉`);
 });
+
 
 // Webhook route
 app.post(`/${process.env.BOT_TOKEN}`, (req, res) => {
