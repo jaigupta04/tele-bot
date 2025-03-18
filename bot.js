@@ -33,21 +33,28 @@ bot.command("remind", async (ctx) => {
   const userId = ctx.from.id;
   const args = ctx.message.text.split(" ").slice(1);
 
-  if (args.length < 2) {
-    return ctx.reply("❌ Usage: /remind [DD[/MM[/YYYY]]] HH:mm Reminder text");
+  if (args.length < 1) {
+    return ctx.reply("❌ Usage: /remind [DD[/MM[/YYYY]]] [HH:mm] Reminder text");
   }
 
-  // Extract time
+  let time = "00:00"; // Default time is 00:00
+  let messageParts = args;
+  
+  // Check if a time is provided
   const timeIndex = args.findIndex((arg) => arg.match(/^\d{1,2}:\d{2}$/));
-  if (timeIndex === -1) {
-    return ctx.reply("❌ Please specify time in HH:mm format.");
+  if (timeIndex !== -1) {
+    time = args[timeIndex];
+    messageParts = args.slice(timeIndex + 1);
   }
 
-  const time = args[timeIndex];
-  const message = args.slice(timeIndex + 1).join(" ");
+  if (messageParts.length === 0) {
+    return ctx.reply("❌ Please provide a reminder message.");
+  }
+
+  const message = messageParts.join(" ");
 
   // Extract date
-  const dateParts = args.slice(0, timeIndex).join("").split("/");
+  const dateParts = args.slice(0, timeIndex === -1 ? args.length : timeIndex).join("").split("/");
   const now = moment();
   let day = now.date();
   let month = now.month() + 1; // Moment months are 0-indexed
@@ -80,6 +87,7 @@ bot.command("remind", async (ctx) => {
 
   ctx.reply(`✅ Reminder set for ${scheduledTime.format("D MMM YYYY, HH:mm")} - "${message}"`);
 });
+
 
 
 bot.command("birthday", async (ctx) => {
