@@ -95,24 +95,33 @@ bot.command("birthday", async (ctx) => {
   const args = ctx.message.text.split(" ").slice(1);
 
   if (args.length < 2) {
-    return ctx.reply("❌ Usage: /birthday DD/MM Name");
+    return ctx.reply("❌ Usage: /birthday DD/MM Name_of_person");
   }
 
   const [date, ...nameArray] = args;
   const name = nameArray.join(" ");
 
-  if (!/^\d{2}\/\d{2}$/.test(date)) {
+  if (!moment(date, "DD/MM", true).isValid()) {
     return ctx.reply("❌ Invalid date format! Use DD/MM.");
   }
 
-  const docRef = await db.collection("birthdays").add({
+  // Check if the birthday already exists in Firestore
+  const snapshot = await db.collection("birthdays").where("chatId", "==", chatId).where("name", "==", name).get();
+
+  if (!snapshot.empty) {
+    return ctx.reply(`⚠️ ${name}'s birthday is already saved.`);
+  }
+
+  await db.collection("birthdays").add({
     chatId,
     name,
     date,
+    lastSent: "" // Initialize lastSent to empty
   });
 
-  ctx.reply(`✅ Birthday for ${name} added on ${date} 🎉`);
+  ctx.reply(`✅ Birthday reminder set for ${name} on ${date}.`);
 });
+
 
 
 // Webhook route

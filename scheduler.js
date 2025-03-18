@@ -46,24 +46,33 @@ const sendMessage = async (chatId, text) => {
 
 // 🔥 2️⃣ Process Birthday Reminders
 (async () => {
-  const now = new Date();
-  const today = now.toLocaleDateString("en-GB").slice(0, 5); // Get DD/MM
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const tomorrowStr = tomorrow.toLocaleDateString("en-GB").slice(0, 5);
+  const now = moment();
+  const today = now.format("DD/MM"); // Get today's date in DD/MM format
+  const currentTime = now.format("HH:mm");
 
-  // Fetch all birthdays from Firestore
-  const snapshot = await db.collection("birthdays").get();
+  // 🎂 Check for upcoming birthdays (today & a day before at 6 PM)
+  const birthdaySnapshot = await db.collection("birthdays").get();
+  
+  birthdaySnapshot.forEach(async (doc) => {
+    const { chatId, name, date, lastSent } = doc.data();
 
-  if (!snapshot.empty) {
-    for (const doc of snapshot.docs) {
-      const { chatId, name, date } = doc.data();
+    if (date === today) {
+      // ✅ Check if the birthday message was already sent today
+      if (lastSent === now.format("YYYY-MM-DD")) return;
 
-      if (date === today) {
-        await sendMessage(chatId, `🎂 Today is ${name}'s birthday! 🎊`);
-      } else if (date === tomorrowStr) {
-        await sendMessage(chatId, `🎉 Reminder: ${name}'s birthday is tomorrow!`);
+      await axios.post(TELEGRAM_API, { chat_id: chatId, text: `🎉 Today is ${name}'s birthday! 🎂` });
+      await db.collection("birthdays").doc(doc.id).update({ lastSent: now.format("YYYY-MM-DD") });
+      console.log(`Sent birthday reminder for ${name}`);
+    }
+
+    if (now.format("HH:mm") === "18:00") { // 6 PM check
+      const tomorrow = now.clone().add(1, "day").format("DD/MM");
+      if (date === tomorrow && lastSent !== now.format("YYYY-MM-DD") + " pre") {
+        await axios.post(TELEGRAM_API, { chat_id: chatId, text: `⚠️ Reminder: Tomorrow is ${name}'s birthday! 🎂` });
+        await db.collection("birthdays").doc(doc.id).update({ lastSent: now.format("YYYY-MM-DD") + " pre" });
+        console.log(`Sent pre-birthday reminder for ${name}`);
       }
     }
-  }
+  });
+
 })();
